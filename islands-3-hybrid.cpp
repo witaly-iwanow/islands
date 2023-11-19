@@ -1,12 +1,12 @@
 #include <queue>
-#include <memory>
 #include <chrono>
 
 #include "islands-shared.h"
 
 struct Cell {int r, c;};
 
-void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& neibs) {
+constexpr int maxRecDepth = 1000;
+void getNeighbors(Map& islandMap, int islandId, int r, int c, int recDepth, std::queue<Cell>& neibs) {
     for (int rr = r - 1; rr <= r + 1; ++rr) {
         if (rr < 0 || rr >= Map::rows)
             continue;
@@ -17,7 +17,10 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
 
             if (islandMap[rr][cc] < 0) {
                 islandMap[rr][cc] = islandId;
-                neibs.push({ rr, cc });
+                if (recDepth < maxRecDepth)
+                    getNeighbors(islandMap, islandId, rr, cc, recDepth + 1, neibs);
+                else
+                    neibs.push({rr, cc});
             }
         }
     }
@@ -30,7 +33,7 @@ int floodFill(Map& islandMap, int islandId, int r, int c) {
 
     islandMap[r][c] = islandId;
     std::queue<Cell> neibs;
-    neibs.push({ r, c });
+    neibs.push({r, c});
 
     while (!neibs.empty()) {
         //std::cout << "Num neighbors: " << neibs.size() << std::endl;
@@ -41,34 +44,35 @@ int floodFill(Map& islandMap, int islandId, int r, int c) {
 
         auto p = neibs.front();
         neibs.pop();
-        getNeighbors(islandMap, islandId, p.r, p.c, neibs);
+        getNeighbors(islandMap, islandId, p.r, p.c, 1, neibs);
     }
 
     return 1;
 }
 
 int main() {
-    std::unique_ptr<Map> islandMap(new Map);
+    Map islandMap;
     int currIsland = 1;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (int i = 0; i < NumIterations; ++i) {
-        islandMap->set(TestPattern);
+        islandMap.set(TestPattern);
 
         currIsland = 1;
         for (int r = 0; r < Map::rows; ++r) {
-            for (int c = 0; c < Map::cols; ++c)
-                currIsland += floodFill(*islandMap, currIsland, r, c);
+            for (int c = 0; c < Map::cols; ++c) {
+                currIsland += floodFill(islandMap, currIsland, r, c);
+            }
         }
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "\nNeighbor queue. Elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
+    std::cout << "\nRecursion (depth=1000) + neighbor queue. Elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
 
     std::cout << "Num islands: " << (currIsland - 1) << ", max num neighbors: " << g_maxNumNeibs <<  "\n";
-    if (islandMap->cols * islandMap->rows < 100)
-        islandMap->print();
+    if (islandMap.cols * islandMap.rows < 100)
+        islandMap.print();
 
-    printResult(*islandMap);
+    printResult(islandMap);
 
     return 0;
 }

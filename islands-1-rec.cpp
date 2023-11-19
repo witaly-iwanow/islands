@@ -44,9 +44,8 @@ int main() {
 
         currIsland = 1;
         for (int r = 0; r < Map::rows; ++r) {
-            for (int c = 0; c < Map::cols; ++c) {
+            for (int c = 0; c < Map::cols; ++c)
                 currIsland += floodFill(*islandMap, currIsland, r, c);
-            }
         }
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

@@ -2,9 +2,9 @@
 
 ## Iteration 1: naive recursion
 
-Simplified code (0 is water, -1 is not-yet-visited piece of "land"):
+Simplified code (0 is water, -1 is not yet visited piece of "land"):
 
-```
+```cpp
 void floodFillRec(Map& islandMap, int islandId, int r, int c, int recDepth) {
     for (int rr = r - 1; rr <= r + 1; ++rr) {
         for (int cc = c - 1; cc <= c + 1; ++cc) {
@@ -22,8 +22,8 @@ Performance for 302x202 map with 4 islands (`clang++ -std=c++17` on M1 MB Air, m
 
 Store neighbors in a queue and handle them sequentially instead of using recursion:
 
-```
-struct Cell {int r; int c;};
+```cpp
+struct Cell {int r, c;};
 
 void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& neibs) {
     for (int rr = r - 1; rr <= r + 1; ++rr) {
@@ -50,5 +50,33 @@ void floodFill(Map& islandMap, int islandId, int r, int c) {
 ```
 Performance: 5.8ms (boooo). Max neighbor queue size: 399, doesn't segfault on 30k x 20k (yay!).
 
+## Iteration 3: hybrid - depth-limited recursion and a queue
 
+Use recursion up to certain depth (1000), then put neighbors in the queue for further processing in the main loop:
+```cpp
+constexpr int maxRecDepth = 1000;
+void getNeighbors(Map& islandMap, int islandId, int r, int c, int recDepth, std::queue<Cell>& neibs) {
+    for (int rr = r - 1; rr <= r + 1; ++rr) {
+        for (int cc = c - 1; cc <= c + 1; ++cc) {
+            if (islandMap[rr][cc] < 0) {
+                islandMap[rr][cc] = islandId;
+                if (recDepth < maxRecDepth)
+                    getNeighbors(islandMap, islandId, rr, cc, recDepth + 1, neibs);
+                else
+                    neibs.push({rr, cc});
+            }
+        }
+    }
+}
+```
+Performance: 4.1ms. Max neighbor queue size: 1835.
 
+## Intermediate summary
+
+| Method | Performance (ms per map)  |
+| --- | --- |
+| Recursion | 3.7 |
+| Queue | 5.8 |
+| Recursion + queue | 4.1 |
+
+The hybrid approach seems to be the best choice - we can ramp up the max depth even further and get very close to performance of the pure recursive method, while enjoying safe handling of large maps. Stay tuned though, it's not the end of the story...
