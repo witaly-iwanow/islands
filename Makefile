@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17
+CXXFLAGS = -std=c++17 -O3
 
 all: islands-1-rec islands-2-neib-queue islands-3-hybrid
 

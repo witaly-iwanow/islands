@@ -80,3 +80,11 @@ Performance: 4.1ms. Max neighbor queue size: 1835.
 | Recursion + queue | 4.1 |
 
 The hybrid approach seems to be the best choice - we can ramp up the max depth even further and get very close to performance of the pure recursive method, while enjoying safe handling of large maps. Stay tuned though, it's not the end of the story...
+
+## Getting some help from the compiler
+Let's add `-O3` to the compiler options and see what happens, now the queue method is much faster:
+| | default | -O3 |
+| --- | --- | --- |
+| Recursion | 3.7 | 1 |
+| Queue | 5.8 | 0.64 |
+| Recursion + queue | 4.1 | 0.95 |
