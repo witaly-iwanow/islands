@@ -4,24 +4,24 @@
 
 static int g_maxRecDepth = 0;
 
+#define FF(_r, _c) \
+    if (islandMap[_r][_c] < 0) { \
+        islandMap[_r][_c] = islandId; \
+        floodFillRec(islandMap, islandId, _r, _c, recDepth + 1); \
+    }
+
 void floodFillRec(Map& islandMap, int islandId, int r, int c, int recDepth) {
     if (recDepth > g_maxRecDepth)
         g_maxRecDepth = recDepth;
 
-    for (int rr = r - 1; rr <= r + 1; ++rr) {
-        if (rr < 0 || rr >= Map::rows)
-            continue;
-
-        for (int cc = c - 1; cc <= c + 1; ++cc) {
-            if (cc < 0 || cc >= Map::cols)
-                continue;
-
-            if (islandMap[rr][cc] < 0) {
-                islandMap[rr][cc] = islandId;
-                floodFillRec(islandMap, islandId, rr, cc, recDepth + 1);
-            }
-        }
-    }
+    FF(r - 1, c - 1)
+    FF(r - 1, c)
+    FF(r - 1, c + 1)
+    FF(r, c - 1)
+    FF(r, c + 1)
+    FF(r + 1, c - 1)
+    FF(r + 1, c)
+    FF(r + 1, c + 1)
 }
 
 int floodFill(Map& islandMap, int islandId, int r, int c) {

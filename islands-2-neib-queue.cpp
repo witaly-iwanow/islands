@@ -6,21 +6,21 @@
 
 struct Cell {int r, c;};
 
-void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& neibs) {
-    for (int rr = r - 1; rr <= r + 1; ++rr) {
-        if (rr < 0 || rr >= Map::rows)
-            continue;
-
-        for (int cc = c - 1; cc <= c + 1; ++cc) {
-            if (cc < 0 || cc >= Map::cols)
-                continue;
-
-            if (islandMap[rr][cc] < 0) {
-                islandMap[rr][cc] = islandId;
-                neibs.push({ rr, cc });
-            }
-        }
+#define GN(_r, _c) \
+    if (islandMap[_r][_c] < 0) { \
+        islandMap[_r][_c] = islandId; \
+        neibs.push({_r, _c}); \
     }
+
+void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& neibs) {
+    GN(r - 1, c - 1)
+    GN(r - 1, c)
+    GN(r - 1, c + 1)
+    GN(r, c - 1)
+    GN(r, c + 1)
+    GN(r + 1, c - 1)
+    GN(r + 1, c)
+    GN(r + 1, c + 1)
 }
 
 static int g_maxNumNeibs = 0;

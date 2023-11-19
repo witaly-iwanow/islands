@@ -7,24 +7,25 @@
 struct Cell {int r, c;};
 
 constexpr int maxRecDepth = 1000;
-void getNeighbors(Map& islandMap, int islandId, int r, int c, int recDepth, std::queue<Cell>& neibs) {
-    for (int rr = r - 1; rr <= r + 1; ++rr) {
-        if (rr < 0 || rr >= Map::rows)
-            continue;
 
-        for (int cc = c - 1; cc <= c + 1; ++cc) {
-            if (cc < 0 || cc >= Map::cols)
-                continue;
-
-            if (islandMap[rr][cc] < 0) {
-                islandMap[rr][cc] = islandId;
-                if (recDepth < maxRecDepth)
-                    getNeighbors(islandMap, islandId, rr, cc, recDepth + 1, neibs);
-                else
-                    neibs.push({rr, cc});
-            }
-        }
+#define GN(_r, _c) \
+    if (islandMap[_r][_c] < 0) { \
+        islandMap[_r][_c] = islandId; \
+        if (recDepth < maxRecDepth) \
+            getNeighbors(islandMap, islandId, _r, _c, recDepth + 1, neibs); \
+        else \
+            neibs.push({_r, _c}); \
     }
+
+void getNeighbors(Map& islandMap, int islandId, int r, int c, int recDepth, std::queue<Cell>& neibs) {
+    GN(r - 1, c - 1)
+    GN(r - 1, c)
+    GN(r - 1, c + 1)
+    GN(r, c - 1)
+    GN(r, c + 1)
+    GN(r + 1, c - 1)
+    GN(r + 1, c)
+    GN(r + 1, c + 1)
 }
 
 static int g_maxNumNeibs = 0;

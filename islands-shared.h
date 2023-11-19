@@ -21,38 +21,41 @@ public:
             map.fill(Water);
         }
         else if (pattern == Pattern::OnlyIsland) {
-            map.fill(Island);
+            map.fill(Water);
+            for (int r = 0; r < rows; ++r) {
+                for (int c = 0; c < cols; ++c)
+                    this->operator[](r)[c] = Island;
+            }
         }
         else if (pattern == Pattern::Cross) {
             // cut it into 4 islands with row = 1 and col = 1 lines,
             // so that it's somewhat complicated, and we can be sure
             // the whole thing works as intended
-            map.fill(Island);
-            for (int r = 0; r < rows; ++r)
-                map[r * cols + 1] = Water;
-
-            for (int c = 0; c < cols; ++c)
-                map[cols + c] = Water;
+            for (int r = 0; r < rowsPadded; ++r) {
+                for (int c = 0; c < colsPadded; ++c)
+                    map[r * colsPadded + c] = (r == 0 || r == 2 || r == (rowsPadded - 1) || c == 0 || c == 2 || c == (colsPadded - 1)) ? Water : Island;
+            }
         }
         else if (pattern == Pattern::Checkerboard) {
+            map.fill(Water);
             for (int r = 0; r < rows; ++r) {
                 for (int c = 0; c < cols; ++c)
-                    map[r * cols + c] = ((r ^ c) & 1) ? Water : Island;
+                    this->operator[](r)[c] = ((r ^ c) & 1) ? Water : Island;
             }
         }
     }
 
     CellType* operator[](int row) {
-        return map.data() + row * cols;
+        return map.data() + 1 + (row + 1) * colsPadded;
     }
     const CellType* operator[](int row) const {
-        return map.data() + row * cols;
+        return map.data() + 1 + (row + 1) * colsPadded;
     }
 
     void print() const {
         for (int r = 0; r < rows; ++r) {
             for (int c = 0; c < cols; ++c) {
-                auto val = map[r * cols + c];
+                auto val = this->operator[](r)[c];
                 if (val < 0)
                     std::cout << "- ";
                 else
@@ -64,7 +67,10 @@ public:
     }
 
 private:
-    std::array<CellType, rows * cols> map;
+    static constexpr int rowsPadded = 1 + rows + 1;
+    static constexpr int colsPadded = 1 + cols + 1;
+
+    std::array<CellType, rowsPadded * colsPadded> map;
 };
 
 // prints [number of islands]: [biggest island size] [second biggest island size] ... [smallest island size]
