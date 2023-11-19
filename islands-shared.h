@@ -6,13 +6,13 @@
 // fixed size "map" with "islands" surrounded by "water"
 class Map {
 public:
-    using Type = int;
+    using CellType = int32_t;
 
     static constexpr int rows = 302;
     static constexpr int cols = 202;
 
-    static constexpr Type Water = 0;
-    static constexpr Type Island = -1;
+    static constexpr CellType Water = 0;
+    static constexpr CellType Island = -1;
 
     enum class Pattern { OnlyWater, OnlyIsland, Cross, Checkerboard, None };
 
@@ -42,10 +42,10 @@ public:
         }
     }
 
-    int* operator[](int row) {
+    CellType* operator[](int row) {
         return map.data() + row * cols;
     }
-    const int* operator[](int row) const {
+    const CellType* operator[](int row) const {
         return map.data() + row * cols;
     }
 
@@ -64,7 +64,7 @@ public:
     }
 
 private:
-    std::array<Type, rows * cols> map;
+    std::array<CellType, rows * cols> map;
 };
 
 // prints [number of islands]: [biggest island size] [second biggest island size] ... [smallest island size]

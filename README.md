@@ -83,8 +83,11 @@ The hybrid approach seems to be the best choice - we can ramp up the max depth e
 
 ## Getting some help from the compiler
 Let's add `-O3` to the compiler options and see what happens, now the queue method is much faster:
+
 | | default | -O3 |
 | --- | --- | --- |
 | Recursion | 3.7 | 1 |
 | Queue | 5.8 | 0.64 |
 | Recursion + queue | 4.1 | 0.95 |
+
+Another thing to try is tighter packing with `int8_t` as the cell type, but that doesn't seem to affect performance on my hardware even with very large maps. It might be useful in terms of memory savings, if marking islands with unique ids is not required (or the number of islands is guaranteed to be within 127).
