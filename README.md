@@ -30,7 +30,7 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
         for (int cc = c - 1; cc <= c + 1; ++cc) {
             if (islandMap[rr][cc] < 0) {
                 islandMap[rr][cc] = islandId;
-                neibs.push({ rr, cc });
+                neibs.push({rr, cc});
             }
         }
     }
@@ -39,7 +39,7 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
 void floodFill(Map& islandMap, int islandId, int r, int c) {
     islandMap[r][c] = islandId;
     std::queue<Cell> neibs;
-    neibs.push({ r, c });
+    neibs.push({r, c});
 
     while (!neibs.empty()) {
         auto p = neibs.front();
@@ -48,7 +48,7 @@ void floodFill(Map& islandMap, int islandId, int r, int c) {
     }
 }
 ```
-Performance: 5.8ms (boooo), doesn't segfault on 30k x 20k (yay!).
+Performance: 5.8ms (boooo). Max neighbor queue size: 399, doesn't segfault on 30k x 20k (yay!).
 
 
 

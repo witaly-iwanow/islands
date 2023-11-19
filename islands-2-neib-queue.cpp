@@ -26,7 +26,7 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
     }
 }
 
-static int g_maxNumPoints = 0;
+static int g_maxNumNeibs = 0;
 int floodFill(Map& islandMap, int islandId, int r, int c) {
     if (islandMap[r][c] >= 0)
         return 0;
@@ -36,11 +36,11 @@ int floodFill(Map& islandMap, int islandId, int r, int c) {
     neibs.push({ r, c });
 
     while (!neibs.empty()) {
-        //std::cout << "Num points: " << startingPoints.size() << std::endl;
+        //std::cout << "Num neighbors: " << neibs.size() << std::endl;
         //islandMap.print();
 
-        if (neibs.size() > g_maxNumPoints)
-            g_maxNumPoints = neibs.size();
+        if (neibs.size() > g_maxNumNeibs)
+            g_maxNumNeibs = neibs.size();
 
         auto p = neibs.front();
         neibs.pop();
@@ -68,7 +68,7 @@ int main() {
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "\nNeighbor queue. Elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
 
-    std::cout << "Num islands: " << (currIsland - 1) << ", max num points: " << g_maxNumPoints <<  "\n";
+    std::cout << "Num islands: " << (currIsland - 1) << ", max num neighbors: " << g_maxNumNeibs <<  "\n";
     if (islandMap->cols * islandMap->rows < 100)
         islandMap->print();
 
