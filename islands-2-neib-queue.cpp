@@ -1,13 +1,15 @@
+#include <queue>
+#include <memory>
 #include <chrono>
 
 #include "islands-shared.h"
 
-static int g_maxRecDepth = 0;
+struct Cell {
+    int r;
+    int c;
+};
 
-void floodFillRec(Map& islandMap, int islandId, int r, int c, int recDepth) {
-    if (recDepth > g_maxRecDepth)
-        g_maxRecDepth = recDepth;
-
+void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& neibs) {
     for (int rr = r - 1; rr <= r + 1; ++rr) {
         if (rr < 0 || rr >= Map::rows)
             continue;
@@ -18,18 +20,32 @@ void floodFillRec(Map& islandMap, int islandId, int r, int c, int recDepth) {
 
             if (islandMap[rr][cc] < 0) {
                 islandMap[rr][cc] = islandId;
-                floodFillRec(islandMap, islandId, rr, cc, recDepth + 1);
+                neibs.push({ rr, cc });
             }
         }
     }
 }
 
+static int g_maxNumPoints = 0;
 int floodFill(Map& islandMap, int islandId, int r, int c) {
     if (islandMap[r][c] >= 0)
         return 0;
 
     islandMap[r][c] = islandId;
-    floodFillRec(islandMap, islandId, r, c, 1);
+    std::queue<Cell> neibs;
+    neibs.push({ r, c });
+
+    while (!neibs.empty()) {
+        //std::cout << "Num points: " << startingPoints.size() << std::endl;
+        //islandMap.print();
+
+        if (neibs.size() > g_maxNumPoints)
+            g_maxNumPoints = neibs.size();
+
+        auto p = neibs.front();
+        neibs.pop();
+        getNeighbors(islandMap, islandId, p.r, p.c, neibs);
+    }
 
     return 1;
 }
@@ -50,9 +66,9 @@ int main() {
         }
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "\nNaive recursion. Elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
+    std::cout << "\nNeighbor queue. Elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
 
-    std::cout << "Num islands: " << (currIsland - 1) << ", max recursion depth: " << g_maxRecDepth << "\n";
+    std::cout << "Num islands: " << (currIsland - 1) << ", max num points: " << g_maxNumPoints <<  "\n";
     if (islandMap->cols * islandMap->rows < 100)
         islandMap->print();
 
