@@ -12,7 +12,7 @@ struct Cell {int r, c;};
         neibs.push({_r, _c}); \
     }
 
-void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& neibs) {
+void getNeighbors(Map& islandMap, Map::CellType islandId, int r, int c, std::queue<Cell>& neibs) {
     GN(r - 1, c - 1)
     GN(r - 1, c)
     GN(r - 1, c + 1)
@@ -24,13 +24,13 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
 }
 
 static int g_maxNumNeibs = 0;
-int floodFill(Map& islandMap, int islandId, int r, int c) {
+int floodFill(Map& islandMap, Map::CellType islandId, int r, int c) {
     if (islandMap[r][c] >= 0)
         return 0;
 
     islandMap[r][c] = islandId;
     std::queue<Cell> neibs;
-    neibs.push({ r, c });
+    neibs.push({r, c});
 
     while (!neibs.empty()) {
         //std::cout << "Num neighbors: " << neibs.size() << std::endl;
@@ -49,7 +49,7 @@ int floodFill(Map& islandMap, int islandId, int r, int c) {
 
 int main() {
     std::unique_ptr<Map> islandMap(new Map);
-    int currIsland = 1;
+    Map::CellType currIsland = 1;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (int i = 0; i < NumIterations; ++i) {

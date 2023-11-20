@@ -76,7 +76,7 @@ private:
 // prints [number of islands]: [biggest island size] [second biggest island size] ... [smallest island size]
 // for correctness verification purposes. Every island is assumed to be marked with a unique non-negative id
 static void printResult(const Map& map) {
-    std::map<int, int> islandSizes;
+    std::map<Map::CellType, int> islandSizes;
     for (int r = 0; r < Map::rows; ++r) {
         for (int c = 0; c < Map::cols; ++c) {
             auto islandId = map[r][c];
@@ -86,8 +86,8 @@ static void printResult(const Map& map) {
     }
 
     std::multiset<int, std::greater<int>> sortedIslandSizes;
-    for (auto& [islandId, islandSize] : islandSizes)
-        sortedIslandSizes.emplace(islandSize);
+    for (const auto& island: islandSizes)
+        sortedIslandSizes.emplace(island.second);
 
     std::cout << sortedIslandSizes.size() << ": ";
     for (auto i = sortedIslandSizes.cbegin(); i != sortedIslandSizes.cend(); ++i)

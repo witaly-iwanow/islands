@@ -11,7 +11,7 @@ static int g_maxRecDepth = 0;
         floodFillRec(islandMap, islandId, _r, _c, recDepth + 1); \
     }
 
-void floodFillRec(Map& islandMap, int islandId, int r, int c, int recDepth) {
+void floodFillRec(Map& islandMap, Map::CellType islandId, int r, int c, int recDepth) {
     if (recDepth > g_maxRecDepth)
         g_maxRecDepth = recDepth;
 
@@ -25,7 +25,7 @@ void floodFillRec(Map& islandMap, int islandId, int r, int c, int recDepth) {
     FF(r + 1, c + 1)
 }
 
-int floodFill(Map& islandMap, int islandId, int r, int c) {
+int floodFill(Map& islandMap, Map::CellType islandId, int r, int c) {
     if (islandMap[r][c] >= 0)
         return 0;
 
@@ -37,7 +37,7 @@ int floodFill(Map& islandMap, int islandId, int r, int c) {
 
 int main() {
     std::unique_ptr<Map> islandMap(new Map);
-    int currIsland = 1;
+    Map::CellType currIsland = 1;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (int i = 0; i < NumIterations; ++i) {

@@ -29,7 +29,7 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, int recDepth, std:
 }
 
 static int g_maxNumNeibs = 0;
-int floodFill(Map& islandMap, int islandId, int r, int c) {
+int floodFill(Map& islandMap, Map::CellType islandId, int r, int c) {
     if (islandMap[r][c] >= 0)
         return 0;
 
@@ -54,7 +54,7 @@ int floodFill(Map& islandMap, int islandId, int r, int c) {
 
 int main() {
     std::unique_ptr<Map> islandMap(new Map);
-    int currIsland = 1;
+    Map::CellType currIsland = 1;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     for (int i = 0; i < NumIterations; ++i) {
