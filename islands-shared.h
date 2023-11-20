@@ -33,7 +33,7 @@ public:
             // the whole thing works as intended
             for (int r = 0; r < rowsPadded; ++r) {
                 for (int c = 0; c < colsPadded; ++c)
-                    map[r * colsPadded + c] = (r == 0 || r == 2 || r == (rowsPadded - 1) || c == 0 || c == 2 || c == (colsPadded - 1)) ? Water : Island;
+                    map[r * colsPadded + c] = (r == 0 || r == 2 || r > rows || c == 0 || c == 2 || c > cols) ? Water : Island;
             }
         }
         else if (pattern == Pattern::Checkerboard) {
