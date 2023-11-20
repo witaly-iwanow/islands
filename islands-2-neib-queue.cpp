@@ -12,15 +12,15 @@ struct Cell {int r, c;};
         neibs.push({_r, _c}); \
     }
 
-void getNeighbors(Map& islandMap, Map::CellType islandId, int r, int c, std::queue<Cell>& neibs) {
-    GN(r - 1, c - 1)
-    GN(r - 1, c)
-    GN(r - 1, c + 1)
-    GN(r, c - 1)
-    GN(r, c + 1)
-    GN(r + 1, c - 1)
-    GN(r + 1, c)
-    GN(r + 1, c + 1)
+void getNeighbors(Map& islandMap, Map::CellType islandId, Cell c, std::queue<Cell>& neibs) {
+    GN(c.r - 1, c.c - 1)
+    GN(c.r - 1, c.c)
+    GN(c.r - 1, c.c + 1)
+    GN(c.r, c.c - 1)
+    GN(c.r, c.c + 1)
+    GN(c.r + 1, c.c - 1)
+    GN(c.r + 1, c.c)
+    GN(c.r + 1, c.c + 1)
 }
 
 static int g_maxNumNeibs = 0;
@@ -39,9 +39,9 @@ int floodFill(Map& islandMap, Map::CellType islandId, int r, int c) {
         if (neibs.size() > g_maxNumNeibs)
             g_maxNumNeibs = neibs.size();
 
-        auto p = neibs.front();
+        auto n = neibs.front();
         neibs.pop();
-        getNeighbors(islandMap, islandId, p.r, p.c, neibs);
+        getNeighbors(islandMap, islandId, n, neibs);
     }
 
     return 1;
