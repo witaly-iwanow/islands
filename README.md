@@ -107,7 +107,25 @@ for (int rr = r - 1; rr <= r + 1; ++rr) {
     }
 }
 ```
-These checks might cause performance issues on CPUs with high "branch penalty". Let's get rid of these checks by means of adding 1-cell-wide water padding, plus throw in some manual loop unrolling:
+These checks might cause performance issues on CPUs with high "branch penalty". Let's get rid of these checks by means of adding 1-cell-wide water padding, plus throw in some manual loop unrolling.
+
+By water padding I mean internally storing this:
+```
+1 1 1
+1 1 1
+1 1 1
+```
+as
+```
+0 0 0 0 0
+0 1 1 1 0
+0 1 1 1 0
+0 1 1 1 0
+0 0 0 0 0
+```
+while on the outside the matrix is still presented as 3x3. This allows us not to worry about the code trying to access matrix[-1][-1] or such - it won't cause any problems as long as it's initialized with 0 ("water").
+
+And onto the manual loop unroll:
 ```cpp
 #define GN(_r, _c) \
     if (islandMap[_r][_c] < 0) { \
@@ -127,7 +145,7 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
 }
 ```
 
-All the methods benefited from the change, though unrolling caused a side-effect in the recursive method:
+All the methods benefited from the unroll change, though it reduced available recursion depth somewhat:
 | | default | -O3 | padding & unroll |
 | --- | --- | --- | --- |
 | Recursion | 3.7 | 1 | 0.54* |
@@ -179,5 +197,37 @@ Not too bad - it's relatively well localized, but you can do even better in term
 ```
 It's definitely much more chaotic, no wonder we are seeing a major performance drop.
 
-## Iteration 8: progressive scanning
-To-do: scan row-by-row and merge areas touching each other.
+## Iteration 8: progressive scanning (WIP)
+The main idea is to scan the map row-by-row and keep track of areas connected to each other between rows. The CPU cache will be as happy as it can ever be.
+
+An example to illustrate the concept. Here's the map:
+```
+- - 0 0 0 0 - -
+0 - - 0 0 - - 0
+0 0 0 - - 0 0 0
+```
+Fill consecutive ranges of "land" with unique island ids (those are not final as some of the areas will merge eventually). Row #1:
+```
+1 1 0 0 0 0 2 2
+0 - - 0 0 - - 0
+0 0 0 - - 0 0 0
+```
+Store a set of two island id sets: {{1}, {2}}.
+
+Row #2:
+```
+1 1 0 0 0 0 2 2
+0 3 3 0 0 4 4 0
+0 0 0 - - 0 0 0
+```
+As `3` is connected to `1`, we put it into `1`'s set (same with `2` and `4`): {{1,3}, {2,4}}.
+
+Row #3:
+```
+1 1 0 0 0 0 2 2
+0 3 3 0 0 4 4 0
+0 0 0 5 5 0 0 0
+```
+As `5` is connected to both `1+3` and `2+4` sets, they get merged into one set {1,2,3,4,5} - i.e. there's only one island.
+
+Implementation and performance: to-do
