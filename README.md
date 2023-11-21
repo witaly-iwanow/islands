@@ -157,8 +157,27 @@ In order to emphasize the effect of localized reads/writes, I've switched to a m
 | Queue | 6.4 |
 | Stack | 9.3 |
 
-Whoa, using a stack slows it down 45%!
-
+Whoa, using a stack slows it down 45%! Let's see what's happening here. If we log the order in which the cells are handled, we'll get this for a queue:
+```
+ 1  2  5 10 17
+ 3  4  6 11 18
+ 7  8  9 12 19
+13 14 15 16 20
+21 22 23 24 25
+26 27 28 29 30
+31 32 33 34 35
+```
+Not too bad - it's relatively well localized, but you can do even better in terms of producing less cache misses (see Iteration 8). Now here's a stack:
+```
+ 1  2  5 34 35
+ 3  4  6 10 33
+ 7  8  9 11 15
+32 12 13 14 16
+30 31 17 18 19
+28 26 24 20 21
+29 27 25 22 23
+```
+It's definitely much more chaotic, no wonder we are seeing a major performance drop.
 
 ## Iteration 8: progressive scanning
 To-do: scan row-by-row and merge areas touching each other.
