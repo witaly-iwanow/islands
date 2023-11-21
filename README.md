@@ -145,7 +145,7 @@ void getNeighbors(Map& islandMap, int islandId, int r, int c, std::queue<Cell>& 
 }
 ```
 
-All the methods benefited from the unroll change, though it reduced available recursion depth somewhat:
+All the methods benefited from the changes, although available recursion depth decreased somewhat:
 | | default | -O3 | padding & unroll |
 | --- | --- | --- | --- |
 | Recursion | 3.7 | 1 | 0.54* |
