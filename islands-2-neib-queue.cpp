@@ -1,4 +1,5 @@
 #include <queue>
+#include <stack>
 #include <memory>
 #include <chrono>
 
@@ -6,13 +7,22 @@
 
 struct Cell {int r, c;};
 
+// queue or stack? Stack appears to be 45% slower, with Clang/M1 at least
+#if 1
+using Neighbors = std::queue<Cell>;
+#define FIRST front
+#else
+using Neighbors = std::stack<Cell>;
+#define FIRST top
+#endif
+
 #define GN(_r, _c) \
     if (islandMap[_r][_c] < 0) { \
         islandMap[_r][_c] = islandId; \
         neibs.push({_r, _c}); \
     }
 
-void getNeighbors(Map& islandMap, Map::CellType islandId, Cell c, std::queue<Cell>& neibs) {
+void getNeighbors(Map& islandMap, Map::CellType islandId, Cell c, Neighbors& neibs) {
     GN(c.r - 1, c.c - 1)
     GN(c.r - 1, c.c)
     GN(c.r - 1, c.c + 1)
@@ -29,7 +39,7 @@ int floodFill(Map& islandMap, Map::CellType islandId, int r, int c) {
         return 0;
 
     islandMap[r][c] = islandId;
-    std::queue<Cell> neibs;
+    Neighbors neibs;
     neibs.push({r, c});
 
     while (!neibs.empty()) {
@@ -39,7 +49,7 @@ int floodFill(Map& islandMap, Map::CellType islandId, int r, int c) {
         if (neibs.size() > g_maxNumNeibs)
             g_maxNumNeibs = neibs.size();
 
-        auto n = neibs.front();
+        auto n = neibs.FIRST();
         neibs.pop();
         getNeighbors(islandMap, islandId, n, neibs);
     }

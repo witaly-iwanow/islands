@@ -42,9 +42,9 @@ void floodFill(Map& islandMap, int islandId, int r, int c) {
     neibs.push({r, c});
 
     while (!neibs.empty()) {
-        auto p = neibs.front();
+        auto n = neibs.front();
         neibs.pop();
-        getNeighbors(islandMap, islandId, p.r, p.c, neibs);
+        getNeighbors(islandMap, islandId, n, neibs);
     }
 }
 ```
@@ -135,5 +135,30 @@ All the methods benefited from the change, though unrolling caused a side-effect
 | Recursion + queue | 4.1 | 0.95 | 0.66 |
 \* the recursive method started crashing on the standard 302x202 map used for all the previous tests, so I had to reduce the map size and interpolate the result (it's approx 15% slower than the queue method)
 
-## Iteration 7: progressive scanning
+## Iteration 7: down the rabbit hole
+Let's see how things change if we handle neighbors in a different order - namely switching from a queue/FIFO to stack/LIFO:
+```cpp
+#if 1
+using Neighbors = std::queue<Cell>;
+#define FIRST front
+#else
+using Neighbors = std::stack<Cell>;
+#define FIRST top
+#endif
+
+auto n = neibs.FIRST();
+neibs.pop();
+getNeighbors(islandMap, islandId, n, neibs);
+
+```
+In order to emphasize the effect of localized reads/writes, I've switched to a much bigger map (30k x 20k) for this test (4 consecutive runs, the fastest time):
+| Container | time, s |
+| --- | --- |
+| Queue | 6.4 |
+| Stack | 9.3 |
+
+Whoa, using a stack slows it down 45%!
+
+
+## Iteration 8: progressive scanning
 To-do: scan row-by-row and merge areas touching each other.
