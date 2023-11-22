@@ -200,7 +200,7 @@ It's definitely much more chaotic, no wonder we are seeing a major performance d
 ## Iteration 8: progressive scanning (WIP)
 The main idea is to scan the map row-by-row and keep track of areas connected to each other between rows. The CPU cache will be as happy as it can ever be.
 
-An example to illustrate the concept. Here's the map:
+An example to illustrate the concept. Here's the map ('-' represents unvisited "land", stored as -1):
 ```
 - - 0 0 0 0 - -
 0 - - 0 0 - - 0
@@ -230,4 +230,41 @@ Row #3:
 ```
 As `5` is connected to both `1+3` and `2+4` sets, they get merged into one set {1,2,3,4,5} - i.e. there's only one island.
 
-Implementation and performance: to-do
+Step 1: implement row-by-row filling, that alone will give us a decent performance estimate:
+```cpp
+void fillRow(Map& islandMap, int& islandId, int r) {
+    int c = 0;
+    auto row = islandMap[r];
+    while (c < islandMap.cols) {
+        if (row[c] < 0) {
+            if (!row[c - 1])
+                ++islandId; // water in prev cell = new island
+
+            row[c] = islandId;
+        }
+
+        ++c;
+    }
+}
+
+...
+
+Map islandMap;
+islandMap.set(Map::Pattern::Cross);
+
+Map::CellType currIsland = 0;
+for (int r = 0; r < Map::rows; ++r)
+    fillRow(islandMap, currIsland, r);
+```
+And the result is
+```
+- 0 - - - - - -      1 0 2 2 2 2 2 2
+0 0 0 0 0 0 0 0      0 0 0 0 0 0 0 0
+- 0 - - - - - -  =>  3 0 4 4 4 4 4 4
+- 0 - - - - - -      5 0 6 6 6 6 6 6
+- 0 - - - - - -      7 0 8 8 8 8 8 8
+```
+which looks correct and takes 2.7s on a 30k x 20k map - 2.4x faster than the queue algorithm. We still need to do row merging and replace ids in the map, but there's a healthy performance margin, so it should work...
+
+Step 2: merging row islands
+(WIP)
