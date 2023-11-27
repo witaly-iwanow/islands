@@ -230,7 +230,8 @@ Row #3:
 ```
 As `5` is connected to both `1+3` and `2+4` sets, they get merged into one set {1,2,3,4,5} - i.e. there's only one island.
 
-Step 1: implement row-by-row filling, that alone will give us a decent performance estimate:
+#### Progressive scan, Step 1
+Implement row-by-row filling, that alone will give us a decent performance estimate:
 ```cpp
 void fillRow(Map& islandMap, int& islandId, int r) {
     int c = 0;
@@ -242,7 +243,6 @@ void fillRow(Map& islandMap, int& islandId, int r) {
 
             row[c] = islandId;
         }
-
         ++c;
     }
 }
@@ -266,5 +266,30 @@ And the result is
 ```
 which looks correct and takes 2.7s on a 30k x 20k map - 2.4x faster than the queue algorithm. We still need to do row merging and replace ids in the map, but there's a healthy performance margin, so it should work...
 
-Step 2: merging row islands
-(WIP)
+#### Progressive scan, Step 2
+Now let's see how we can merge "row" islands we got in Step 1. A quick test to check if checking cells from the previous row will slow us down significantly (the code itself doesn't produce anything usable at this point):
+```cpp
+void fillRow(Map& islandMap, int& islandId, int r) {
+    int c = 0;
+    auto row = islandMap[r];
+    const auto prevRow = islandMap[r - 1];
+    while (c < islandMap.cols) {
+        if (row[c] < 0) {
+            if (!row[c - 1])
+                ++islandId;
+
+            if (prevRow[c - 1] > 0)
+                row[c] = prevRow[c - 1];
+            else if (prevRow[c] > 0)
+                row[c] = prevRow[c];
+            else if (prevRow[c + 1] > 0)
+                row[c] = prevRow[c + 1];
+            else
+                row[c] = islandId;
+        }
+        ++c;
+    }
+}
+```
+Surprisingly this runs even faster than `fillRow` from Step 1, a lot faster in fact: 1.4s (vs 2.7s). It doesn't make much sense - anyone having the luxury of time to kill is very much welcome to go to `godbolt.org`, stare at the assembler code and solve the mystery.
+Another observation is that `const auto prevRow` is slightly, but consistently faster than `auto prevRow` (by about 10%) - one more great reason to use `const` as much as possible.
